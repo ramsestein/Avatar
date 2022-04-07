@@ -5,7 +5,7 @@ import plotly.graph_objs as go
 import pandas as pd
 
 ## Importar la data
-df = pd.read_csv('data/Pzero_dummies.csv', delimiter = ';')
+df = pd.read_csv('Pzero_dummies.csv', delimiter = ';')
 
 #Crear una tabla dinámica
 pv = pd.pivot_table(df, index=['paciente'], columns=["NRL"], values=['Cr'], aggfunc=sum, fill_value=0)
