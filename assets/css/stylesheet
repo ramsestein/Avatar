@@ -1,0 +1,48 @@
+fondo{
+	display: grid;
+	grid-template-columns: repeat(6, 1fr);
+	grid-template-rows: repeat(5, 1fr);
+	grid-column-gap: 5px;
+	grid-row-gap: 5px;
+	background-color: rgba(208,228,245,0.78);
+	background-repeat: no-repeat;
+	background-attachment: scroll;
+	background-position: 0px 0px;
+	}
+
+h1{
+	font-family: "Times New Roman", Times, serif;
+	font-size: 22px;
+	letter-spacing: 1px;
+	word-spacing: 1px;
+	color: greenyellow;
+	font-weight: normal;
+	text-decoration: none solid rgb(68, 68, 68);
+	font-style: normal;
+	font-variant: small-caps;
+	text-transform: capitalize;
+	}
+
+div1{ 
+	grid-area: 1 / 1 / 2 / 4; 
+	}
+
+div2{ 
+	grid-area: 2 / 1 / 4 / 7; 
+	}
+
+div3{ 
+	grid-area: 4 / 1 / 6 / 7;
+	}
+
+div4{ 
+	grid-area: 2 / 1 / 6 / 4;
+	}
+
+div5{ 
+	grid-area: 2 / 4 / 6 / 7;
+	}
+
+div6{ 
+	grid-area: 2 / 4 / 6 / 7; 
+	}
