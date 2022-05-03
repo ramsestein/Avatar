@@ -3,7 +3,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objs as go
 import pandas as pd
-import flask
+from flask import Flask, render_template
 
 ## Imagenes de ocupacion de las camas
 box1 = 'busy.jpeg'
@@ -24,18 +24,24 @@ img_heart = 'image001.png'
 img_liver = 'image001.png'
 img_kidney = 'image001.png'
 
-#Variables de movimiento entre paginas
 select_cama = 0
+#Variables de movimiento entre paginas
 
 ## Importar la data
 df = pd.read_csv('Pzero_dummies.csv', delimiter = ';',na_values=[""])
 
-#Crear tablas dinámicas de trabajo
+#Crear tablas dinamicas de trabajo
 #pv = pd.pivot_table(df, index=['paciente'], columns=["NRL"], values=['Cr'], aggfunc=sum, fill_value=0)
 
-app = dash.Dash()
+app = dash.Dash(__name__, suppress_callback_exceptions=True)
  
-app.layout = html.Div(
+app.layout = html.Div([
+    dcc.Location(id='url', refresh=False),
+    html.Div(id='page-content')
+])
+
+#html pagina de inicio
+inicio = html.Div(
     style={'background-color': 'rgba(208,228,245,0.78)','background-repeat': 'repeat','background-attachment': 'scroll','background-position': '0px 0px'},
     children=[
     #Div del cabecero
@@ -48,23 +54,35 @@ app.layout = html.Div(
     html.Div(id='div2',hidden=False,
         #style={''},
         children=[
-            html.Img(id='b1',n_clicks=0,src=app.get_asset_url(box1)),
-            html.Img(id='b2',n_clicks=0,src=app.get_asset_url(box2)),
-            html.Img(id='b3',n_clicks=0,src=app.get_asset_url(box3)),
-            html.Img(id='b4',n_clicks=0,src=app.get_asset_url(box4)),
-            html.Img(id='b5',n_clicks=0,src=app.get_asset_url(box5))
+            html.A(html.Img(id='b1', src=app.get_asset_url(box1)), href='/resumen_1'),
+            html.A(html.Img(id='b2', src=app.get_asset_url(box2)), href='/resumen_2'),
+            html.A(html.Img(id='b3', src=app.get_asset_url(box3)), href='/resumen_3'),
+            html.A(html.Img(id='b4', src=app.get_asset_url(box4)), href='/resumen_4'),
+            html.A(html.Img(id='b5', src=app.get_asset_url(box5)), href='/resumen_5')
         ]),
     html.Div(id='div3',hidden=False,
         #style={''},
         children=[
-            html.Img(id='b6',n_clicks=0,src=app.get_asset_url(box6)),
-            html.Img(id='b7',n_clicks=0,src=app.get_asset_url(box7)),
-            html.Img(id='b8',n_clicks=0,src=app.get_asset_url(box8)),
-            html.Img(id='b9',n_clicks=0,src=app.get_asset_url(box9)),
-            html.Img(id='b10',n_clicks=0,src=app.get_asset_url(box10))
+            html.A(html.Img(id='b6', src=app.get_asset_url(box6)), href='/resumen_6'),
+            html.A(html.Img(id='b7', src=app.get_asset_url(box7)), href='/resumen_7'),
+            html.A(html.Img(id='b8', src=app.get_asset_url(box8)), href='/resumen_8'),
+            html.A(html.Img(id='b9', src=app.get_asset_url(box9)), href='/resumen_9'),
+            html.A(html.Img(id='b10', src=app.get_asset_url(box10)), href='/resumen_10')
+        ])
+    ])
+
+#html pagina de resumen para paciente
+resumen = html.Div(
+    style={'background-color': 'rgba(208,228,245,0.78)','background-repeat': 'repeat','background-attachment': 'scroll','background-position': '0px 0px'},
+    children=[
+    #Div del cabecero
+    html.Div(id='div1',hidden=False,
+        #style={''},
+        children=[
+            html.H1('UCIQ - E043')
         ]),
     #Divs de resumen de paciente, pantalla 2
-    html.Div(id='div4',hidden=True,
+    html.Div(id='div4',hidden=False,
         #style={''},
         children=[
             html.Img(id='supp_brain',src=app.get_asset_url(img_brain)),
@@ -73,39 +91,62 @@ app.layout = html.Div(
             html.Img(id='supp_liver',src=app.get_asset_url(img_liver)),
             html.Img(id='supp_kidney',src=app.get_asset_url(img_kidney))
         ]),
-    html.Div(id='div5',hidden=True,
+    html.Div(id='div5',hidden=False,
         #style={''},
         children=[
             html.Img(id='bed',src=app.get_asset_url('busy.jpeg'))
         ]),
-    html.Div(id='div6',hidden=True,
+    html.Div(id='div6',hidden=False,
         #style={''},
         children=[
         html.Img(id='organos',src=app.get_asset_url('organos.svg'))
         ]),
-    html.Div(id='div7',hidden=True,
+    html.Div(id='div7',hidden=False,
         #style={''},
         children=[
-        html.Button('Return',id='return',n_clicks=0)
+        html.A(html.Button('Return',id='return',n_clicks=0), href='/')
         ])
     ])
 
-#Llamada a servidor: Se aprieta sobre la cama 1
-@app.callback(
-    dash.dependencies.Output(component_id="div1",component_property="hidden"),
-    dash.dependencies.Output(component_id="div2",component_property="hidden"),
-    dash.dependencies.Output(component_id="div3",component_property="hidden"),
-    dash.dependencies.Output(component_id="div4",component_property="hidden"),
-    dash.dependencies.Output(component_id="div5",component_property="hidden"),
-    dash.dependencies.Output(component_id="div6",component_property="hidden"),
-    dash.dependencies.Output(component_id="div7",component_property="hidden"),
-    [dash.dependencies.Input(component_id="b1",component_property="n_clicks")]
-)
 
-def select_cama1 (n_clicks):
-    select_cama = 1
-    return False, True, True, False, False, False, False
- 
+#callback para cambio de paginas
+@app.callback(dash.dependencies.Output('page-content', 'children'),
+              [dash.dependencies.Input('url', 'pathname')])
+
+def display_page (pathname):
+    if (pathname == '/resumen_1'):
+        select_cama = 1
+        return resumen
+    elif (pathname == '/resumen_2'):
+        select_cama = 2
+        return resumen
+    elif (pathname == '/resumen_3'):
+        select_cama = 3
+        return resumen
+    elif (pathname == '/resumen_4'):
+        select_cama = 4
+        return resumen
+    elif (pathname == '/resumen_5'):
+        select_cama = 5
+        return resumen
+    elif (pathname == '/resumen_6'):
+        select_cama = 6
+        return resumen
+    elif (pathname == '/resumen_7'):
+        select_cama = 7
+        return resumen
+    elif (pathname == '/resumen_8'):
+        select_cama = 8
+        return resumen
+    elif (pathname == '/resumen_9'):
+        select_cama = 9
+        return resumen
+    elif (pathname == '/resumen_10'):
+        select_cama = 10
+        return resumen
+    else:
+        select_cama = 0
+        return inicio
 
 if __name__ == '__main__':
     app.run_server(debug=True)
